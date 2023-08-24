@@ -28,6 +28,7 @@ import sys
 import threading
 import timeit
 import xml.parsers.expat
+from xml.sax.saxutils import escape  # added by Anton
 
 try:
     import gzip
@@ -1321,9 +1322,9 @@ class Speedtest(object):
                         s_url, s_host = server_json['url'], server_json['host']
                         s_lat, s_lon = server_json['lat'], server_json['lon']
                         s_sponsor, s_id = server_json['sponsor'], server_json['id']
-                        serversxml += f'<server url="{s_url}" lat="{s_lat}" lon="{s_lon}" name="{s_name}"' \
-                                      f' country="{s_country}" cc="{s_cc}" sponsor="{s_sponsor}" id="{s_id}"' \
-                                      f' host="{s_host}" />\n'
+                        serversxml += f'<server url="{escape(s_url)}" lat="{escape(s_lat)}" lon="{escape(s_lon)}"' \
+                                      f' name="{escape(s_name)}" country="{escape(s_country)}" cc="{escape(s_cc)}"' \
+                                      f' sponsor="{escape(s_sponsor)}" id="{escape(s_id)}" host="{escape(s_host)}" />\n'
                     serversxml += '</servers>\n</settings>'
 
                 printer('Servers XML:\n%s' % serversxml, debug=True)
