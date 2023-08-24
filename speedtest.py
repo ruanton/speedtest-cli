@@ -1237,7 +1237,8 @@ class Speedtest(object):
 
         return self.config
 
-    def get_servers(self, servers=None, exclude=None):
+    # new argument 'country_city', added by Anton
+    def get_servers(self, servers=None, exclude=None, country_city=None):
         """Retrieve a the list of speedtest.net servers, optionally filtered
         to servers matching those specified in the ``servers`` argument
         """
@@ -1264,6 +1265,13 @@ class Speedtest(object):
             '://www.speedtest.net/speedtest-servers.php',
             'http://c.speedtest.net/speedtest-servers.php',
         ]
+
+        # added by Anton
+        if country_city:
+            req_country, req_city = country_city.split(':')
+            urls = [
+                f'https://www.speedtest.net/api/js/servers?engine=js&search={req_city}&https_functional=true&limit=100'
+            ]
 
         headers = {}
         if gzip:
@@ -1301,6 +1309,22 @@ class Speedtest(object):
                     raise ServersRetrievalError()
 
                 serversxml = ''.encode().join(serversxml_list)
+
+                # added by Anton
+                if country_city:
+                    servers_json = json.loads(serversxml)
+                    serversxml = '<?xml version="1.0" encoding="UTF-8"?>\n<settings>\n<servers>'
+                    for server_json in servers_json:
+                        s_name, s_country, s_cc = server_json['name'], server_json['country'], server_json['cc']
+                        if s_name != req_city or s_country != req_country:
+                            continue
+                        s_url, s_host = server_json['url'], server_json['host']
+                        s_lat, s_lon = server_json['lat'], server_json['lon']
+                        s_sponsor, s_id = server_json['sponsor'], server_json['id']
+                        serversxml += f'<server url="{s_url}" lat="{s_lat}" lon="{s_lon}" name="{s_name}"' \
+                                      f' country="{s_country}" cc="{s_cc}" sponsor="{s_sponsor}" id="{s_id}"' \
+                                      f' host="{s_host}" />\n'
+                    serversxml += '</servers>\n</settings>'
 
                 printer('Servers XML:\n%s' % serversxml, debug=True)
 

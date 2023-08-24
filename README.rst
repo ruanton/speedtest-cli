@@ -4,6 +4,12 @@ speedtest-cli
 Command line interface for testing internet bandwidth using
 speedtest.net
 
+Additional argument 'country_city' to .get_servers(). Example:
+
+::
+    s.get_servers(country_city='Germany:Berlin')
+::
+
 .. image:: https://img.shields.io/pypi/v/speedtest-cli.svg
         :target: https://pypi.python.org/pypi/speedtest-cli/
         :alt: Latest Version
